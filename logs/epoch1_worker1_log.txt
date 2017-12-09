@@ -1,0 +1,2 @@
+2017-12-09 21:56:21,890 : Train time 00h 00m 00s, Training started.
+2017-12-09 21:56:25,979 : Train time 00h 00m 04s, Mean loss: 0.7100

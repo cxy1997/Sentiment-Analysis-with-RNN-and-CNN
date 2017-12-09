@@ -1,0 +1,2 @@
+2017-12-09 21:56:26,132 : Test time 00h 00m 00s, Start testing.
+2017-12-09 21:56:28,448 : Test time 00h 00m 02s, Accuracy: 0 / 610	0.0000

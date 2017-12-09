@@ -7,14 +7,14 @@ from torch.autograd import Variable
 from utils import norm_col_init, weights_init
 
 class SA_NET(torch.nn.Module):
-    def __init__(self, document_length, embedding_length, classes = 2):
+    def __init__(self, sentence_length, embedding_length, classes = 2):
         super(SA_NET, self).__init__()
-        self.conv1 = nn.Conv2d(1, 1024, (embedding_length, 7), stride = 1, padding = (0, 3))
+        self.conv1 = nn.Conv2d(1, 1024, (7, embedding_length), stride = 1, padding = (3, 0))
         self.conv2 = nn.Conv1d(1024, 64, 9, stride = 1, padding = 4)
         self.conv3 = nn.Conv1d(64, 128, 5, stride = 1, padding = 2)
         self.conv4 = nn.Conv1d(128, 256, 3, stride = 1, padding = 1)
 
-        self.lstm = nn.LSTMCell(document_length * 16, 512)
+        self.lstm = nn.LSTMCell(sentence_length * 16, 512)
 
         self.fc1 = nn.Linear(512, 128)
         self.fc2 = nn.Linear(128, 32)
@@ -38,7 +38,7 @@ class SA_NET(torch.nn.Module):
 
     def forward(self, inputs):
         inputs, (hx, cx) = inputs
-        x = F.relu(F.max_pool1d(self.conv1(inputs).squeeze(2), kernel_size=2, stride=2))
+        x = F.relu(F.max_pool1d(self.conv1(inputs).squeeze(3), kernel_size=2, stride=2))
         x = F.relu(F.max_pool1d(self.conv2(x), kernel_size=2, stride=2))
         x = F.relu(F.max_pool1d(self.conv3(x), kernel_size=2, stride=2))
         x = F.relu(F.max_pool1d(self.conv4(x), kernel_size=2, stride=2))
@@ -54,5 +54,5 @@ class SA_NET(torch.nn.Module):
         return x, (hx, cx)
 
 if __name__ == '__main__':
-	c = SA_NET(256, 256)
-	print(c.forward((Variable(torch.ones(1, 1, 256, 256)), (Variable(torch.zeros(1, 512)), Variable(torch.zeros(1, 512))))))
+	c = SA_NET(128, 100)
+	print(c.forward((Variable(torch.ones(1, 1, 128, 100)), (Variable(torch.zeros(1, 512)), Variable(torch.zeros(1, 512))))))

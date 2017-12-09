@@ -102,3 +102,4 @@ ENV/
 
 # word embedding files
 word_embedding/
+*.npz

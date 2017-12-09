@@ -8,12 +8,13 @@ import torch.multiprocessing as mp
 from torch.multiprocessing import Process, Lock, Value
 from model import SA_NET
 from train import train
-#from test import test
+from test import test
 #from evaluate import evaluate
 from shared_optim import SharedRMSprop, SharedAdam
 import time
 import copy
 import random
+from constants import *
 
 parser = argparse.ArgumentParser(description='Sentiment-Analysis')
 parser.add_argument(
@@ -34,7 +35,7 @@ parser.add_argument(
 parser.add_argument(
     '--lr',
     type=float,
-    default=0.0001,
+    default=0.001,
     metavar='LR',
     help='learning rate')
 parser.add_argument(
@@ -46,7 +47,7 @@ parser.add_argument(
 parser.add_argument(
     '--workers',
     type=int,
-    default=12,
+    default=2,
     metavar='W',
     help='how many training processes to use')
 parser.add_argument(
@@ -60,13 +61,25 @@ parser.add_argument(
     type=str,
     default='trained_models/',
     metavar='MD',
-    help='folder to store trained models')
+    help='directory to store trained models')
+parser.add_argument(
+    '--log-dir',
+    type=str,
+    default='logs/',
+    metavar='LD',
+    help='directory to store logs')
 parser.add_argument(
     '--epoch',
     type=int,
     default=0,
     metavar='EP',
     help='current epoch, used to pass parameters, do not change')
+parser.add_argument(
+    '--gamma',
+    type=float,
+    default=0.96,
+    metavar='GM',
+    help='to reduce learning rate gradually in simulated annealing')
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -74,7 +87,12 @@ if __name__ == '__main__':
     mp.set_start_method('spawn')
     torch.manual_seed(args.seed)
     random.seed(args.seed)
-    shared_model = SA_NET(256, 256)
+    if not os.path.exists(args.model_dir):
+        os.mkdir(args.model_dir)
+    if not os.path.exists(args.log_dir):
+        os.mkdir(args.log_dir)
+
+    shared_model = SA_NET(Sentence_Max_Length, Embedding_Dim[Tag_Dict[args.tag]])
     if args.model_load:
         try:
             saved_state = torch.load(os.path.join(args.model_dir, 'model_%s.dat' % args.tag))
@@ -84,20 +102,26 @@ if __name__ == '__main__':
     shared_model.share_memory()
     optimizer = SharedAdam(shared_model.parameters(), lr=args.lr)
     optimizer.share_memory()
-    if not os.path.exists('dataset/cn/cn_negative.npy'):
-        initialize
     
     if args.train:
         while True:
             args.epoch += 1
-            print('=====> Train at epoch %d <=====' % args.epoch)
+            print('=====> Train at epoch %d, Learning rate %0.6f <=====' % (args.epoch, args.lr))
 
             processes = []
             for rank in range(args.workers):
-                p = Process(target=train, args=(rank, args, shared_model, optimizer, np.zeros((100, 100, 256, 256))))
+                p = Process(target=train, args=(rank, args, shared_model, optimizer, os.path.join(Dataset_Dir, Tag_Name[Tag_Dict[args.tag]], "%s_train.npz" % Tag_Name[Tag_Dict[args.tag]])))
                 p.start()
                 processes.append(p)
                 time.sleep(0.1)
 
             for p in processes:
                 p.join()
+
+            test(args, shared_model, os.path.join(Dataset_Dir, Tag_Name[Tag_Dict[args.tag]], "%s_test.npz" % Tag_Name[Tag_Dict[args.tag]]))
+
+            args.lr *= args.gamma
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = args.lr
+    else:
+        evaluate()
