@@ -99,3 +99,6 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# word embedding files
+word_embedding/

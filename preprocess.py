@@ -33,8 +33,8 @@ def cvt_to_npz(tag):
     xmlroot_p = xmltree_p.getroot()
     mapping = lambda x: embedding(model, x.text, tag)
     embeddings = list(map(mapping, xmlroot_n)) + list(map(mapping, xmlroot_p))
-    target = [0] * len(xmlroot_n) + [1] * len(xmlroot_p)
-    print(len(embeddings))
+    target = np.array([0] * len(xmlroot_n) + [1] * len(xmlroot_p))
+    np.savez(os.path.join(Dataset_Dir, Tag_Name[tag], "%s_embedding.npz" % Tag_Name[tag]), target, *embeddings)
 
 if __name__ == '__main__':
     '''
@@ -42,4 +42,5 @@ if __name__ == '__main__':
     for dataset in datasets:
         preprocess_file(dataset)
     '''
-    cvt_to_npz(CN)
+    for lan in Languages:
+        cvt_to_npz(lan)
