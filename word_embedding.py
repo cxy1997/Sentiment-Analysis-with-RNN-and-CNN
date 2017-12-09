@@ -5,14 +5,10 @@ import numpy as np
 import nltk
 import jieba
 import re
+from constants import *
 
-Word_Embedding_Dir = 'word_embedding'
 if not os.path.exists(os.path.join(os.environ['HOME'], 'nltk_data/tokenizers/punkt')):
     nltk.download('punkt')
-
-CN = 0
-EN = 1
-Embedding_Dim = [256, 100]
 
 def load_word2vec(Tag):
     if Tag == CN:
@@ -61,6 +57,8 @@ def fix_nltk_words(words):
         elif words[i] == '\'d':
             words[i] = 'had'
         elif words[i] == 'n\'t':
+            if i > 0 and words[i-1] == 'wo':
+                words[i-1] = 'will'
             words[i] = 'not'
     return words
 
@@ -81,13 +79,12 @@ def div_word(sentence, Tag):
     elif Tag == EN:
         return fix_nltk_words(div_en_word(sentence))
 
-def embedding(model, text, Tag, maxlen = 300):
+def embedding(model, text, Tag, maxlen = 128):
     sentences = div_sentence(text, Tag)
     word_embedding_matrix = np.zeros((len(sentences), maxlen, Embedding_Dim[Tag]))
     for i, sentence in enumerate(sentences):
         words = div_word(sentence, Tag)
-        print(words)
-        for j, word in enumerate(words):
+        for j, word in enumerate(words[:maxlen]):
             try:
                 word_embedding_matrix[i][j] = model[word]
             except KeyError:
