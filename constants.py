@@ -8,3 +8,5 @@ Tag_Name = {CN: 'cn', EN: 'en'}
 Embedding_Dim = {CN: 256, EN: 100}
 Sentence_Max_Length = 128
 Test_ratio = 0.1
+LSTM_Hidden_Size = 256
+CNN_Feature_Size = 256

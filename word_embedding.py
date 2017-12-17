@@ -81,11 +81,10 @@ def div_word(sentence, Tag):
 
 def embedding(model, text, Tag, maxlen = Sentence_Max_Length):
     sentences = div_sentence(text, Tag)
-    if len(sentences) > 50:
-        print(sentences)
     word_embedding_matrix = np.zeros((len(sentences), maxlen, Embedding_Dim[Tag]))
     for i, sentence in enumerate(sentences):
         words = div_word(sentence, Tag)
+        print(words)
         for j, word in enumerate(words[:maxlen]):
             try:
                 word_embedding_matrix[i][j] = model[word]
@@ -93,13 +92,24 @@ def embedding(model, text, Tag, maxlen = Sentence_Max_Length):
                 word_embedding_matrix[i][j] = 0.0
     return word_embedding_matrix
 
+def embedding_whole(model, text, Tag):
+    words = div_word(text, Tag)
+    matrix = np.zeros((len(words), Embedding_Dim[Tag]))
+    for i, word in enumerate(words):
+        try:
+            matrix[i] = model[word]
+        except KeyError:
+            matrix[i] = 0.0
+    return matrix
+
 if __name__ == '__main__':
-    # model_en = load_word2vec(EN)
+    model_en = load_word2vec(EN)
     model_cn = load_word2vec(CN)
     #print(model.wv['reinforcement'])
     #print(model.most_similar(positive=['good'],topn=10))
-    # text_en = "Yes, this product does exactly what it says it does and it does it very well - better than any other i've tried...BUT it doesn't work as well on all fur types. I have one terrier mix with fluffy fur/hair and two pugs. The Furminator works wonders on the terrier mix, on my male pug it works okay and on my female pug it pulls nothing (perhaps someone can make a suggestion?). It is worth my expense only because completely deshedding just one dog helps."
+    text_en = "Yes, this product does exactly what it says it does and it does it very well - better than any other i've tried...BUT it doesn't work as well on all fur types. I have one terrier mix with fluffy fur/hair and two pugs. The Furminator works wonders on the terrier mix, on my male pug it works okay and on my female pug it pulls nothing (perhaps someone can make a suggestion?). It is worth my expense only because completely deshedding just one dog helps."
     text_cn = "我从十二岁起！便在镇口的咸亨酒店里当伙计？\n掌柜说！？样子太傻？！外面的短衣主顾。虽然容易说话，但唠唠叨叨缠夹不清的也很不少。他们往往要亲眼看着黄酒从坛子里舀出，看过壶子底里有水没有，又亲看将壶子放在热水里，然后放心：在这严重监督下，羼水也很为难。所以过了几天，掌柜又说我干不了这事。幸亏荐头的情面大，辞退不得，便改为专管温酒的一种无聊职务了。\n"
-    # print(embedding(model_en, text_en, EN).shape)
-    print(embedding(model_cn, text_cn, CN).shape)
+    print(embedding_whole(model_en, text_en, EN).shape)
+    print(embedding_whole(model_cn, text_cn, CN).shape)
+    print(model_en['Yes'] - model_en['yes'])
     #print(model_cn['十二岁'])
