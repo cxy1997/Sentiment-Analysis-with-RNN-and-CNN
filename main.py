@@ -18,7 +18,7 @@ import copy
 import random
 from constants import *
 from utils import setup_logger, ensure_shared_grads
-from preprocess import cvt_to_npz
+from preprocess import preprocess
 
 parser = argparse.ArgumentParser(description='Sentiment-Analysis')
 parser.add_argument(
@@ -98,17 +98,7 @@ if __name__ == '__main__':
     if args.epoch == 0 and args.train:
         for log in os.listdir(args.log_dir):
             os.remove(os.path.join(args.log_dir, log))
-    for lan in Languages:
-        preprocess_file(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_negative.xml" % Tag_Name[lan]), lan)
-        xmltree_n = ET.parse(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_negative.xml" % Tag_Name[lan]))
-        preprocess_file(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_positive.xml" % Tag_Name[lan]), lan)
-        xmltree_p = ET.parse(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_positive.xml" % Tag_Name[lan]))
-
-        if (not os.path.exists(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_train.npz" % Tag_Name[lan]))) or (not os.path.exists(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_test.npz" % Tag_Name[lan]))):
-            print("Pre-calculating the embedding of %s corpus." % str.upper(Tag_Name[lan]))
-            cvt_to_npz(lan)
-        else:
-            print("Embedding of %s corpus detected." % str.upper(Tag_Name[lan]))
+    preprocess()
     
     if args.train:
         shared_model = SA_NET(Embedding_Dim[Tag_Dict[args.tag]])

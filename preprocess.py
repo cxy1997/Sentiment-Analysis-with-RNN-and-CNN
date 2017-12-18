@@ -68,8 +68,8 @@ def cvt_to_npz(tag):
     np.savez(os.path.join(Dataset_Dir, Tag_Name[tag], "%s_test.npz" % Tag_Name[tag]), testset_target , *testset_data)
     
 
-if __name__ == '__main__':    
-    for lan in [CN]:
+def preprocess():    
+    for lan in Languages:
         preprocess_file(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_negative.xml" % Tag_Name[lan]), lan)
         xmltree_n = ET.parse(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_negative.xml" % Tag_Name[lan]))
         preprocess_file(os.path.join(Dataset_Dir, Tag_Name[lan], "%s_positive.xml" % Tag_Name[lan]), lan)
