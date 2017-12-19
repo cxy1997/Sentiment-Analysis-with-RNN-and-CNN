@@ -98,9 +98,9 @@ if __name__ == '__main__':
     if args.epoch == 0 and args.train:
         for log in os.listdir(args.log_dir):
             os.remove(os.path.join(args.log_dir, log))
-    preprocess()
     
     if args.train:
+        preprocess()
         shared_model = SA_NET(Embedding_Dim[Tag_Dict[args.tag]])
         if args.model_load:
             try:
