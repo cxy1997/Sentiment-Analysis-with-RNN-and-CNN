@@ -3,7 +3,7 @@ Project of SJTU-CS438 Internet-based Information Extraction Technologies
 
 Team members:
 
-- [Xiangyu Chan](https://github.com/cxy1997)
+- [Xiangyu Chen](https://github.com/cxy1997)
 
 - [Zelin Ye](https://github.com/shinshiner)
 
