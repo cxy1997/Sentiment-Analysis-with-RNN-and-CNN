@@ -52,7 +52,7 @@ class SA_NET(torch.nn.Module):
             x0 = Variable(torch.zeros(1, 1, Sentence_Max_Length, inputs.size(1)))
 
         for i in range(inputs.size()[0]):
-            hx, cx = self.lstm(inputs[i], (hx, cx))
+            hx, cx = self.lstm(inputs[i].unsqueeze(0), (hx, cx))
             hxs[i] = hx
         
         hx_mean = torch.mean(hxs, 0, True)
